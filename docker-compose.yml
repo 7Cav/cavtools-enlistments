@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  # https://github.com/xfrocks/docker-xenforo
+  xenforo:
+    image: xfrocks/xenforo:php-apache
+    environment:
+      - VIRTUAL_HOST=local.7cav.us
+    expose:
+      - "80"
+    links:
+      - database
+    volumes:
+      - .:/var/www/html/
+
+  database:
+    image: mariadb:10.5
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_DATABASE: 'database'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+    restart: on-failure
+    volumes:
+     - ${PWD}/mariadb:/var/lib/mysql
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
